@@ -1,0 +1,17 @@
+{
+  "name": "demo",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "lerna run dev --parallel"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "lerna": "^6.3.0"
+  },
+  "dependencies": {
+    "@ory/cli": "^0.1.48"
+  }
+}
