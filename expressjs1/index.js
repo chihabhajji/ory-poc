@@ -1,12 +1,8 @@
-// Copyright © 2022 Ory Corp
-// SPDX-License-Identifier: Apache-2.0
-
 const express = require("express")
 const cors = require("cors")
 const { FrontendApi, Configuration } = require("@ory/client")
-
+const axios = require("axios")
 const app = express()
-
 // highlight-start
 const ory = new FrontendApi(
   new Configuration({
@@ -16,7 +12,7 @@ const ory = new FrontendApi(
   }),
 )
 // highlight-end
-
+const allowedDomains = [process.env.UI_URL || "http://localhost:3000", "http://localhost:8082"];
 app.use(
   // highlight-start
   cors({
@@ -28,11 +24,8 @@ app.use(
 
 app.use((req, res, next) => {
   // A simple middleware to authenticate the request.
-  // highlight-start
   ory
     .toSession({
-      // This is important - you need to forward the cookies (think of it as a token)
-      // to Ory:
       cookie: req.headers.cookie,
     })
     .then(({ data }) => {
@@ -43,16 +36,17 @@ app.use((req, res, next) => {
       res.status(401)
       res.json({ error: "Unauthorized" })
     })
-  // highlight-end
 })
 
-app.get("/api/hello", (req, res) => {
-  res.json({
-    message: "Hello from our API!",
-    // highlight-start
-    session_id: req.session.id,
-    identity_traits: req.session.identity.traits,
-    // highlight-end
+app.get("/api/hello", async (req, res) => {
+  const {data} = await axios.create({ 
+    baseURL: "http://localhost:8082",
+    headers: {...req.headers}
+  })
+  .get("/api/hello", { withCredentials: true });
+  return res.json({
+    message1: "Hello from our API1!",
+    message2: data.message
   })
 })
 
@@ -60,3 +54,10 @@ const port = process.env.PORT || 8081
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
 })
+
+
+  // console.debug({
+  //   api: 1,
+  //   session_id: req.session.id,
+  //   identity_traits: req.session.identity.traits,
+  // })

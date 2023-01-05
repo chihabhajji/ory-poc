@@ -1,7 +1,8 @@
 {
   "packages": [
     "react",
-    "expressjs"
+    "expressjs1",
+    "expressjs2"
   ],
   "version": "1.0.0"
 }
