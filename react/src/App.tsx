@@ -14,6 +14,7 @@ const ory = new FrontendApi(
     basePath,
     baseOptions: {
       withCredentials: true,
+      
     },
   }),
 )
