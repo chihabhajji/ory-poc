@@ -14,7 +14,7 @@ const ory = new FrontendApi(
     basePath,
     baseOptions: {
       withCredentials: true,
-      
+
     },
   }),
 )
@@ -39,6 +39,7 @@ function App() {
         ory.createBrowserLogoutFlow().then(({ data }) => {
           // Get also the logout url
           setLogoutUrl(data.logout_url)
+          console.log('checking state')
         })
         // i'm pretty sure this causes a re render but fuck react, idfc
         axios.get('http://localhost:8081/api/hello', {
