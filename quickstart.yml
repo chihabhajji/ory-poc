@@ -1,0 +1,79 @@
+version: '3.7'
+services:
+  kratos-migrate:
+    image: oryd/kratos:latest
+    environment:
+      - DSN=sqlite:///var/lib/sqlite/db.sqlite?_fk=true&mode=rwc
+    volumes:
+      - type: volume
+        source: kratos-sqlite
+        target: /var/lib/sqlite
+        read_only: false
+      - type: bind
+        source: ./contrib/quickstart/kratos/email-password
+        target: /etc/config/kratos
+    command: -c /etc/config/kratos/kratos.yml migrate sql -e --yes
+    restart: on-failure
+    networks:
+      - intranet
+  oathkeeper:
+    image: oryd/oathkeeper:latest
+    depends_on:
+      - kratos
+    ports:
+      - 4455:4455
+      - 4456:4456
+    command:
+      serve proxy -c "/etc/config/oathkeeper/oathkeeper.yml"
+    environment:
+      - LOG_LEVEL=debug
+    restart: on-failure
+    networks:
+      - intranet
+    volumes:
+      - ./contrib/quickstart/oathkeeper:/etc/config/oathkeeper
+  kratos:
+    depends_on:
+      - kratos-migrate
+    image: oryd/kratos:latest
+    ports:
+      - '4433:4433' # public
+      - '4434:4434' # admin
+    restart: unless-stopped
+    environment:
+      - DSN=sqlite:///var/lib/sqlite/db.sqlite?_fk=true
+      - LOG_LEVEL=trace
+    command: serve -c /etc/config/kratos/kratos.yml --dev --watch-courier
+    volumes:
+      - type: volume
+        source: kratos-sqlite
+        target: /var/lib/sqlite
+        read_only: false
+      - type: bind
+        source: ./contrib/quickstart/kratos/email-password
+        target: /etc/config/kratos
+    networks:
+      - intranet
+  kratos-selfservice-ui-node:
+    image: oryd/kratos-selfservice-ui-node:latest
+    environment:
+      # TODO : Double check this line
+      - KRATOS_PUBLIC_URL=http://kratos:4455/
+      - PORT=4435
+      - KRATOS_BROWSER_URL=http://kratos:4455/.ory/kratos/public
+      - JWKS_URL=http://kratos:4456/.well-known/jwks.json
+      - SECURITY_MODE=jwks
+    networks:
+      - intranet
+    restart: on-failure
+  mailslurper:
+    image: oryd/mailslurper:latest-smtps
+    ports:
+      - '4436:4436'
+      - '4437:4437'
+    networks:
+      - intranet
+networks:
+  intranet:
+volumes:
+  kratos-sqlite:

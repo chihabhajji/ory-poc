@@ -7,7 +7,7 @@ import { FrontendApi, Configuration, Session, Identity } from "@ory/client"
 import axios from "axios"
 // Get your Ory url from .env
 // Or localhost for local development
-const basePath = process.env.REACT_APP_ORY_URL || "http://localhost:4000"
+const basePath = process.env.REACT_APP_ORY_URL || "http://localhost:4455"
 
 const ory = new FrontendApi(
   new Configuration({

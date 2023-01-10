@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "bootstrap": "lerna bootstrap",
     "dev": "lerna run dev --parallel"
   },
   "author": "",
