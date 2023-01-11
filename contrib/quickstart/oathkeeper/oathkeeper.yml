@@ -7,7 +7,9 @@ serve:
     cors:
       enabled: true
       allowed_origins:
-        - "*"
+        - "http://127.0.0.1:3000"
+        - "http://127.0.0.1:8081"
+        - "http://127.0.0.1:8082"
       allowed_methods:
         - POST
         - GET
@@ -16,9 +18,13 @@ serve:
         - DELETE
       allowed_headers:
         - Authorization
+        - Cookie
         - Content-Type
+        - Access-Control-Allow-Origin
       exposed_headers:
         - Content-Type
+        - Set-Cookie
+        - Access-Control-Allow-Origin
       allow_credentials: true
       debug: true
 
@@ -30,7 +36,7 @@ errors:
     redirect:
       enabled: true
       config:
-        to: http://localhost:4455/login
+        to: http://127.0.0.1:4455/login
         when:
           -
             error:
@@ -51,17 +57,6 @@ access_rules:
     - file:///etc/config/oathkeeper/access-rules.yml
 
 authenticators:
-  bearer_token:
-    enabled: true
-    config:
-      check_session_url: http://kratos:4433/sessions/whoami
-      preserve_path: true
-      preserve_query: true
-      forward_http_headers:
-        - Authorization
-        - Cookie
-        - X-Forwarded-For
-        - X-CSRF-Token
   anonymous:
     enabled: true
     config:
@@ -77,8 +72,29 @@ authenticators:
       only:
         - ory_kratos_session
 
+  # jwt:
+  #   # Set enabled to true if the authenticator should be enabled and false to disable the authenticator. Defaults to false.
+  #   enabled: true
+  #   config:
+  #     jwks_urls:
+  #       - http://kratos:4433/.well-known/jwks.json
+  #     # scope_strategy: none
+  #     # required_scope:
+  #     #   - scope-a
+  #     #   - scope-b
+  #     # target_audience:
+  #     #   - https://my-service.com/api/users
+  #       # - https://my-service.com/api/devices
+  #     trusted_issuers:
+  #       - http://kratos:4433/
+  #     allowed_algorithms:
+  #       - RS256
+  #     token_from:
+  #       header: Authorization
   noop:
     enabled: true
+  unauthorized:
+    enabled: false
 
 authorizers:
   allow:
@@ -91,9 +107,9 @@ mutators:
   id_token:
     enabled: true
     config:
-      issuer_url: http://localhost:4455/
-      jwks_url: file:///etc/config/oathkeeper/id_token.jwks.json
-      claims: |
-        {
-          "session": {{ .Extra | toJson }}
-        }
+      issuer_url: http://127.0.0.1:4433/
+      jwks_url: file:///etc/config/oathkeeper/Id_token.jwks.json
+      # claims: |
+      #   {
+      #     "session": {{ print .Subject }}
+      #   }

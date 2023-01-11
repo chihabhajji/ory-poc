@@ -1,4 +1,5 @@
 version: '3.7'
+name: test
 services:
   kratos-migrate:
     image: oryd/kratos:latest
@@ -14,6 +15,42 @@ services:
         target: /etc/config/kratos
     command: -c /etc/config/kratos/kratos.yml migrate sql -e --yes
     restart: on-failure
+    networks:
+      - intranet
+  kratos-selfservice-ui-node:
+    image: oryd/kratos-selfservice-ui-node:latest
+    environment:
+      - KRATOS_PUBLIC_URL=http://kratos:4433/
+      - PORT=4435
+      - KRATOS_BROWSER_URL=http://127.0.0.1:4455/.ory/kratos/public
+      - JWKS_URL=http://oathkeeper:4456/.well-known/jwks.json
+      - SECURITY_MODE=jwks
+    networks:
+      - intranet
+    restart: on-failure
+    ports:
+      - '4435:4435'
+  kratos:
+    depends_on:
+      - kratos-migrate
+    image: oryd/kratos:latest
+    ports:
+      - '4433:4433' # public
+      - '4434:4434' # admin
+    restart: unless-stopped
+    environment:
+      - DSN=sqlite:///var/lib/sqlite/db.sqlite?_fk=true
+      - LOG_LEVEL=trace
+      - SERVE_PUBLIC_BASE_URL=http://127.0.0.1:4455/.ory/kratos/public/
+    command: serve -c /etc/config/kratos/kratos.yml --dev --watch-courier
+    volumes:
+      - type: volume
+        source: kratos-sqlite
+        target: /var/lib/sqlite
+        read_only: false
+      - type: bind
+        source: ./contrib/quickstart/kratos/email-password
+        target: /etc/config/kratos
     networks:
       - intranet
   oathkeeper:
@@ -32,40 +69,32 @@ services:
       - intranet
     volumes:
       - ./contrib/quickstart/oathkeeper:/etc/config/oathkeeper
-  kratos:
-    depends_on:
-      - kratos-migrate
-    image: oryd/kratos:latest
-    ports:
-      - '4433:4433' # public
-      - '4434:4434' # admin
-    restart: unless-stopped
-    environment:
-      - DSN=sqlite:///var/lib/sqlite/db.sqlite?_fk=true
-      - LOG_LEVEL=trace
-    command: serve -c /etc/config/kratos/kratos.yml --dev --watch-courier
+  express1:
+    build: ./expressjs1/
     volumes:
-      - type: volume
-        source: kratos-sqlite
-        target: /var/lib/sqlite
-        read_only: false
-      - type: bind
-        source: ./contrib/quickstart/kratos/email-password
-        target: /etc/config/kratos
+      - ./expressjs1:/app
+    ports:
+      - '8081:8081'
+    restart: unless-stopped
     networks:
       - intranet
-  kratos-selfservice-ui-node:
-    image: oryd/kratos-selfservice-ui-node:latest
-    environment:
-      # TODO : Double check this line
-      - KRATOS_PUBLIC_URL=http://kratos:4455/
-      - PORT=4435
-      - KRATOS_BROWSER_URL=http://kratos:4455/.ory/kratos/public
-      - JWKS_URL=http://kratos:4456/.well-known/jwks.json
-      - SECURITY_MODE=jwks
+      
+  express2:
+    build: ./expressjs2/
+    ports:
+      - '8082:8082'
+    restart: unless-stopped
     networks:
       - intranet
-    restart: on-failure
+
+  react:
+    build: ./react/
+    ports:
+      - '3000:3000'
+    restart: unless-stopped
+    networks:
+      - intranet
+      
   mailslurper:
     image: oryd/mailslurper:latest-smtps
     ports:

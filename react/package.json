@@ -2,6 +2,7 @@
   "name": "react-protect-page-with-login",
   "version": "0.1.0",
   "private": true,
+  "proxy": "http://127.0.0.1:4455/",
   "scripts": {
     "build": "react-scripts build",
     "eject": "react-scripts eject",
@@ -30,7 +31,7 @@
     }
   },
   "dependencies": {
-    "@ory/client": "~1.0.2",
+    "@ory/client": "^1.1.4",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-scripts": "5.0.1",
