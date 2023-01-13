@@ -104,12 +104,15 @@ mutators:
   noop:
     enabled: true
 
+  header:
+    enabled: true
+    config:
+      headers:
+        X-User: "{{ print .Extra.id }}"
+        
   id_token:
     enabled: true
     config:
       issuer_url: http://127.0.0.1:4433/
       jwks_url: file:///etc/config/oathkeeper/Id_token.jwks.json
-      # claims: |
-      #   {
-      #     "session": {{ print .Subject }}
-      #   }
+      claims: '{"id": "{{ print .Extra.id }}"}'

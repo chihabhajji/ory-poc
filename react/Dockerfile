@@ -1,12 +1,36 @@
-FROM node:16-alpine AS build-step
+# syntax=docker/dockerfile:1.4
+FROM node:lts AS development
 
-WORKDIR /build
-COPY package.json package-lock.json ./
-RUN npm install
+ENV CI=true
+ENV PORT=3000
 
-COPY . .
+WORKDIR /app
+COPY package.json /app/package.json
+# COPY package-lock.json /app/package-lock.json
+RUN npm i
+COPY . /app
+
+CMD [ "npm", "start", "dev" ]
+
+FROM development AS builder
+
 RUN npm run build
 
-FROM nginx:1.18-alpine
-COPY nginx.conf /etc/nginx/nginx.conf
-COPY --from=build-step /build/build /frontend/build
+FROM development as dev-envs
+RUN <<EOF
+apt-get update
+apt-get install -y --no-install-recommends git
+EOF
+
+RUN <<EOF
+useradd -s /bin/bash -m vscode
+groupadd docker
+usermod -aG docker vscode
+EOF
+# install Docker tools (cli, buildx, compose)
+COPY --from=gloursdocker/docker / /
+CMD [ "npm", "start" ]
+
+FROM nginx:1.13-alpine
+
+COPY --from=builder /app/build /usr/share/nginx/html

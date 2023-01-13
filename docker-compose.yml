@@ -1,5 +1,5 @@
 version: '3.7'
-name: test
+name: ory-poc
 services:
   kratos-migrate:
     image: oryd/kratos:latest
@@ -69,31 +69,7 @@ services:
       - intranet
     volumes:
       - ./contrib/quickstart/oathkeeper:/etc/config/oathkeeper
-  express1:
-    build: ./expressjs1/
-    volumes:
-      - ./expressjs1:/app
-    ports:
-      - '8081:8081'
-    restart: unless-stopped
-    networks:
-      - intranet
-      
-  express2:
-    build: ./expressjs2/
-    ports:
-      - '8082:8082'
-    restart: unless-stopped
-    networks:
-      - intranet
 
-  react:
-    build: ./react/
-    ports:
-      - '3000:3000'
-    restart: unless-stopped
-    networks:
-      - intranet
       
   mailslurper:
     image: oryd/mailslurper:latest-smtps

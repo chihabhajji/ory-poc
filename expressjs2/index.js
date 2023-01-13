@@ -1,43 +1,44 @@
 const express = require("express")
 const cors = require("cors")
-const { FrontendApi, Configuration } = require("@ory/client")
+const { IdentityApi, Configuration } = require("@ory/client")
 
 const app = express()
 
-// const ory = new FrontendApi(new Configuration({
-//   basePath: process.env.ORY_URL || "http://127.0.0.1:4455",
-//   baseOptions: { withCredentials: true },
-// }))
+const ory = new IdentityApi(new Configuration({
+  basePath: 'http://127.0.0.1:4455/.ory/kratos/private',
+}))
 
-// app.use(
-//   cors({
-//     origin: ['http://127.0.0.1:3000','http://127.0.0.1:8081'],
-//     credentials: true // <- Required for CORS to accept cookies and tokens.
-//   }))
+app.use((req, res, next) => {
+  console.log(req.headers['x-user'])
+  ory
+    .getSession({
+      id: req.headers['x-user'],
+      expand: "Identity"
+    }, { withCredentials: true })
+    .then(({ data }) => {
+      req.session = data.identity
+      next()
+    })
+    .catch((e) => {
+      if (e.response.data.error?.code == 404) {
+        console.debug(e.request._header)
+        res.status(500).json(e.response.data.error)
+      } else {
+        res.status(401)
+        res.json({ error: "Unauthorized" })
+      }
+    })
+})
 
-// app.use((req, res, next) => {
-//   // A simple middleware to authenticate the request.
-//   // highlight-start
-//   ory
-//     .toSession({
-//       // This is important - you need to forward the cookies (think of it as a token)
-//       // to Ory:
-//       cookie: req.headers.cookie,
-//     })
-//     .then(({ data }) => {
-//       req.session = data
-//       next()
-//     })
-//     .catch(() => {
-//       res.status(401)
-//       res.json({ error: "Unauthorized" })
-//     })
-//   // highlight-end
-// })
+app.get("/internal/hello", (req, res) => {
+  res.json({
+    messages: ["Hello from our API 2 " + req.session.traits.email + ' (internal)!']
+  })
+})
 
-app.get("/hello", (req, res) => {
-  return res.json({
-    message: "Hello from our API 2!",
+app.get("/external/hello", (req, res) => {
+  res.json({
+    messages: ["Hello from our API 2 " + req.session.traits.email + ' (external)!']
   })
 })
 
