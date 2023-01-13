@@ -13,9 +13,6 @@ const jwkApi = new WellknownApi({
   basePath: 'http://127.0.0.1:4456'
 })
 
-const oauth = new OAuth2Api(new Configuration({
-  basePath: 'http://127.0.0.1:4456',
-}))
 
 app.use((req, res, next) => {
   jwkApi
@@ -51,11 +48,8 @@ app.use((req, res, next) => {
 });
 
 app.get("/external/hello", (req, res) => {
-  axios.get('http://127.0.0.1:8082/internal/hello', {
-    headers: {
-      'x-user': req.session.internal
-    }
-  }).then(({data}) => {
+  axios.get('http://127.0.0.1:8082/internal/hello', {headers: {'x-user': req.session.internal}})
+  .then(({data}) => {
     res.json({
       messages: [
         "Hello from our API1! " + req.session?.traits?.email,

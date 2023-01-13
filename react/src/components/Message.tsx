@@ -1,8 +1,7 @@
-import { Session } from "@ory/client"
 import axios from "axios"
 import { useState, useEffect } from "react"
 
-function Message({url}): JSX.Element {
+function Message({url}: {url: string}): JSX.Element {
     const {messages, error, isLoading} = useMessageFetcher(url);
     if(isLoading){
         <div>Loading...</div>
