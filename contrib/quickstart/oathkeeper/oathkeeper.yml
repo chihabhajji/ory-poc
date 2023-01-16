@@ -72,25 +72,6 @@ authenticators:
       only:
         - ory_kratos_session
 
-  # jwt:
-  #   # Set enabled to true if the authenticator should be enabled and false to disable the authenticator. Defaults to false.
-  #   enabled: true
-  #   config:
-  #     jwks_urls:
-  #       - http://kratos:4433/.well-known/jwks.json
-  #     # scope_strategy: none
-  #     # required_scope:
-  #     #   - scope-a
-  #     #   - scope-b
-  #     # target_audience:
-  #     #   - https://my-service.com/api/users
-  #       # - https://my-service.com/api/devices
-  #     trusted_issuers:
-  #       - http://kratos:4433/
-  #     allowed_algorithms:
-  #       - RS256
-  #     token_from:
-  #       header: Authorization
   noop:
     enabled: true
   unauthorized:
@@ -99,6 +80,17 @@ authenticators:
 authorizers:
   allow:
     enabled: true
+  remote_json:
+    enabled: true
+    config:
+      remote: http://keto-api:4456/check
+      # https://github.com/ory/oathkeeper/issues/797
+      forward_response_headers_to_upstream: []
+      payload: |
+        {
+          "subject": "{{ print .Subject }}",
+          "resource": "{{ printIndex .MatchContext.RegexpCaptureGroups 0 }}"
+        }
 
 mutators:
   noop:
@@ -109,7 +101,7 @@ mutators:
     config:
       headers:
         X-User: "{{ print .Extra.id }}"
-        
+
   id_token:
     enabled: true
     config:

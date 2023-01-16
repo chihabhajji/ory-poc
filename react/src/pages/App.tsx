@@ -1,15 +1,19 @@
-import './App.css'
-
 import { useSession } from '../utils/hooks/sessionHook';
 
+import './App.css';
 
 function App() {
-  const { session, isLoading } = useSession();
-  return (<div>
-    { session?.session && 
-      <a href='/messages'>Super secret messages!</a>
-    }
-  </div>)
+  const { context, isLoading } = useSession();
+  if (isLoading) {
+    return <div>Loading...</div>
+  }
+
+  return (
+    <div>
+      {context?.session &&
+        <a href='/messages'>Super secret messages!</a>
+      }
+    </div>)
 }
 
 export default App

@@ -85,7 +85,7 @@
   id: "express1"
   upstream:
     preserve_host: false
-    url: "http://192.168.1.11:8081"
+    url: "http://192.168.1.12:8081"
     strip_path: /api/1
   match:
     url: "http://127.0.0.1:4455/api/1/<**>"
@@ -109,7 +109,7 @@
   id: "express2"
   upstream:
     preserve_host: false
-    url: "http://192.168.1.11:8082"
+    url: "http://192.168.1.12:8082"
     strip_path: /api/2
   match:
     url: "http://127.0.0.1:4455/api/2/<**>"

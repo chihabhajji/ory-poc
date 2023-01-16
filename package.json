@@ -1,18 +1,21 @@
 {
   "name": "demo",
   "version": "1.0.0",
+  "private": true,
   "description": "",
   "main": "index.js",
   "scripts": {
+    "prepare": "lerna run prepare",
     "bootstrap": "lerna bootstrap",
-    "dev": "lerna run dev --parallel"
+    "dev": "lerna run dev",
+    "clean": "lerna clean",
+    "clean:build": "lerna exec -- rimraf lib",
+    "release": "lerna publish",
+    "ls": "lerna ls"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "lerna": "^6.3.0"
-  },
-  "dependencies": {
-    "@ory/cli": "^0.1.48"
   }
 }

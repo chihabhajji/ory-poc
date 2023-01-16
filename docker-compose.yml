@@ -70,6 +70,17 @@ services:
     volumes:
       - ./contrib/quickstart/oathkeeper:/etc/config/oathkeeper
 
+  keto:
+    image: oryd/keto:latest
+    ports:
+      - "4466:4466"
+      - "4467:4467"
+    command: serve -c /home/ory/keto.yml
+    restart: on-failure
+    volumes:
+      - type: bind
+        source: contrib/quickstart/keto/keto.yml
+        target: /home/ory/keto.yml
       
   mailslurper:
     image: oryd/mailslurper:latest-smtps

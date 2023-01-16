@@ -4,10 +4,10 @@ import { useState, useEffect } from "react"
 function Message({url}: {url: string}): JSX.Element {
     const {messages, error, isLoading} = useMessageFetcher(url);
     if(isLoading){
-        <div>Loading...</div>
+        return <div>Loading...</div>
     }
     if(error){
-        <div>Failed to fetch!</div>
+        return <div>Failed to fetch!</div>
     }
 
     return <>

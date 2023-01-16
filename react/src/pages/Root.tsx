@@ -1,42 +1,55 @@
-import './App.css'
-import { SessionContext, useSession } from '../utils/hooks/sessionHook'
-import { Route, Routes, BrowserRouter as Router } from 'react-router-dom';
 import { Suspense, lazy } from 'react';
+import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
+import logo from '../assets/react.svg';
+import { SessionContext, useSession } from '../utils/hooks/sessionHook';
 import { BASE_PATH } from '../utils/ory/oryClient';
-import logo from '../assets/react.svg'
+import './App.css';
 
 const App = lazy(() => import('./App'));
 const Login = lazy(() => import('./Login'));
 const Messages = lazy(() => import('./Messages'));
+const SecureMessage = lazy(() => import('./admin/SecureMessage'))
 
 function Root(): JSX.Element {
-  const { session, isLoading } = useSession();
+  const { context, isLoading } = useSession();
+  console.log(context?.session?.identity)
   if (isLoading) return <h1>Loading...</h1>
+
+  // @ts-ignore
+  // @ts-ignore
   return (
-    <div className="App">
+    <>
       <header className="App-header">
-        <h1>Hello, Welcome to Ory PoC {session?.session ? session.getUserName() : 'guest'} !</h1>
-        <img className="App-logo" alt="logo" src={logo} />
+        <nav style={{ display: 'flex', padding: '1rem', justifyContent: 'space-between', justifyItems: 'flex-end', fontSize: '1.5rem', textAlign: 'center', fontWeight: 'bold' }}>
+          <div>
+            <a href='/'>Home</a>
+          </div>
+          <a href={context ? (context.logoutUrl + '&return_to=' + window.location.href) : (BASE_PATH + '/login?return_to=' + window.location.href)}>
+            {context ? 'Logout' : 'Login'}
+          </a>
+        </nav>
       </header>
-      <div>
-        <SessionContext.Provider value={session}>
+      <h1 style={{textAlign: 'center'}}>Hello, Welcome to Ory PoC {context?.session ? context.getUserName() : 'guest'} !</h1>
+      <div className="App" style={{ textAlign: 'center' }}>
+        <img className="App-logo" alt="logo" src={logo} />
+        <SessionContext.Provider value={context}>
           <Router>
             <Suspense fallback={<div>Loading...</div>} >
               <Routes>
                 <Route path="/" element={<App />} />
                 <Route path="/login" element={<Login />} />
                 {
-                  session?.session && <Route path="/messages" element={<Messages />} shouldRevalidate={() =>true} />
+                  context?.session && <Route path="/messages" element={<Messages />} />
+                }
+                {
+                  context?.session?.identity.role === 'Admin' && <Route path="/admin/message" element={<SecureMessage />} />
                 }
               </Routes>
             </Suspense>
           </Router>
         </SessionContext.Provider>
       </div>
-      {
-        session ? <a href={(session.logoutUrl + '&return_to=' + window.location.href)}>Logout</a> : <a href={(BASE_PATH + '/login?return_to=' + window.location.href)}>Login</a>
-      }
-    </div>
+    </>
   )
 }
 

@@ -40,10 +40,23 @@
           }
         }
       },
+      "role": {
+        "title": "Role",
+        "type": "string",
+        "default": "customer",
+        "enum": ["customer", "super-admin", "restaurant-owner", "delivery-boy", "agent"]
+      },
+      "group": {
+        "title": "Group",
+        "type":"array",
+        "items": {
+          "type": "string"
+        }
+      },
       "required": [
         "email"
       ],
-      "additionalProperties": false
+      "additionalProperties": true
     }
   }
 }

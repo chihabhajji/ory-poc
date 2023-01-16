@@ -1,8 +1,7 @@
 #root {
-  max-width: 1280px;
   margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+  /* padding: 2rem; */
+  /* text-align: center; */
 }
 
 .logo {
@@ -41,8 +40,10 @@
 }
 
 .App-logo {
-  height: 40vmin;
+  height: 12vmin;
   pointer-events: none;
+  margin-bottom: 4vmin;
+  margin-top: 4vmin;
 }
 
 @media (prefers-reduced-motion: no-preference) {
