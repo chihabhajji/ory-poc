@@ -9,6 +9,9 @@ export class SessionDetails {
   getUserName(): string {
     return this.session?.identity.traits.email || this.session?.identity.traits.username
   }
+  setSession(session: Session) { 
+    this.session = session
+  }
   public constructor(session: Session, logoutUrl: string) {
     this.session = session;
     this.logoutUrl = logoutUrl;
@@ -27,6 +30,7 @@ export function useSession(): { context: SessionDetails | undefined, isLoading: 
       .then(({ data: session }) => {
         frontEndOryApi.createBrowserLogoutFlow().then(({ data: logoutflow }) => {
           setSession(new SessionDetails(session, logoutflow.logout_url))
+          console.log(session.identity.traits.role)
         })
       })
       .catch((e) => {

@@ -31,6 +31,14 @@ app.get('/external/hydration', (req, res) => {
     });
 });
 
+app.get('/admin/hello', (req, res) => {
+    res.json({
+        messages: [
+            `Hello from our API 2's RBAC protected resource ${req.session.traits.email} (external)[Role : ${req.session.traits.role}]!`,
+        ],
+    });
+});
+
 const port = process.env.PORT || 8082;
 app.listen(port, () => {
     console.log(`Example app listening on port ${port}`);

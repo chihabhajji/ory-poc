@@ -2,4 +2,5 @@ packages:
   - "react/"
   - "expressjs1/"
   - "expressjs2/"
+  - "authorizer/"
   - "shared/"

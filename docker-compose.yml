@@ -70,18 +70,72 @@ services:
     volumes:
       - ./contrib/quickstart/oathkeeper:/etc/config/oathkeeper
 
-  keto:
-    image: oryd/keto:latest
-    ports:
-      - "4466:4466"
-      - "4467:4467"
-    command: serve -c /home/ory/keto.yml
-    restart: on-failure
+  keto-migrate:
+    image: oryd/keto:v0.10.0-alpha.0
+    links:
+      - postgresd:postgresd
     volumes:
       - type: bind
-        source: contrib/quickstart/keto/keto.yml
-        target: /home/ory/keto.yml
-      
+        source: ./config
+        target: /home/ory
+    environment:
+      - LOG_LEVEL=debug
+      - DSN=postgres://dbuser:secret@postgresd:5432/accesscontroldb?sslmode=disable
+    command: ["migrate", "up", "-y"]
+    restart: on-failure
+
+  keto-init:
+    image: oryd/keto:v0.7.0-alpha.1-sqlite
+    environment:
+      - KETO_WRITE_REMOTE=keto:4468
+    volumes:
+      - type: bind
+        source: ./contrib/quickstart/keto
+        target: /home/ory
+    command: relation-tuple create /home/ory/relation-tuples
+    restart: on-failure
+
+  keto:
+    image: oryd/keto:latest
+    links:
+      - postgresd:postgresd
+    volumes:
+      - type: bind
+        source: ./contrib/quickstart/keto
+        target: /home/ory
+    ports:
+      - "4465:4466"
+      - "4468:4467"
+    depends_on:
+      - keto-migrate
+    environment:
+      - DSN=postgres://dbuser:secret@postgresd:5432/accesscontroldb?sslmode=disable
+      - TRACING_PROVIDER=jaeger
+      - TRACING_PROVIDER_JAEGER_SAMPLING_SERVER_URL=http://jaeger:5778/sampling
+      - TRACING_PROVIDER_JAEGER_LOCAL_AGENT_ADDRESS=jaeger:6831
+    restart: on-failure
+    networks:
+      - intranet
+    command: serve -c /home/ory/keto.yml
+
+  jaeger:
+    image: jaegertracing/all-in-one:1.7.0
+    ports:
+      - "5775:5775/udp"
+      - "6831:6831/udp"
+      - "6832:6832/udp"
+      - "5778:5778"
+      - "16686:16686"
+      - "14268:14268"
+      - "9411:9411"
+
+  postgresd:
+    image: postgres:9.6
+    environment:
+      - POSTGRES_USER=dbuser
+      - POSTGRES_PASSWORD=secret
+      - POSTGRES_DB=accesscontroldb
+
   mailslurper:
     image: oryd/mailslurper:latest-smtps
     ports:

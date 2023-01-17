@@ -1,14 +1,18 @@
-version: v0.8.0-alpha.2
+version: v0.6.0-alpha.1
 
 log:
   level: debug
 
+namespaces:
+  - id: 0
+    name: videos
+
+dsn: memory
+
 serve:
   read:
     host: 0.0.0.0
-    port: 4466
+    port: 4465
   write:
     host: 0.0.0.0
-    port: 4467
-
-dsn: memory
+    port: 4468
