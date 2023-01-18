@@ -7,10 +7,12 @@ function App() {
   if (isLoading) {
     return <div>Loading...</div>
   }
-
+  if (!context) {
+    return <div>Oops</div>
+  }
   return (
     <div>
-      {context?.session &&
+      {context.session &&
         <a href='/messages'>Super secret messages!</a>
       }
     </div>)

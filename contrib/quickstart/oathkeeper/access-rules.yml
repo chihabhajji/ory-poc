@@ -1,5 +1,4 @@
--
-  id: "ory:kratos:public"
+- id: "ory:kratos:public"
   upstream:
     preserve_host: true
     url: "http://kratos:4433"
@@ -13,15 +12,13 @@
       - DELETE
       - PATCH
   authenticators:
-    -
-      handler: noop
+    - handler: noop
   authorizer:
     handler: allow
   mutators:
     - handler: noop
 # TODO : Shouldnt be exposed
--
-  id: "ory:kratos:admin"
+- id: "ory:kratos:admin"
   upstream:
     preserve_host: false
     url: "http://kratos:4434"
@@ -35,15 +32,13 @@
       - DELETE
       - PATCH
   authenticators:
-    -
-      handler: noop
+    - handler: noop
   authorizer:
     handler: allow
   mutators:
     - handler: noop
 
--
-  id: "ory:kratos-selfservice-ui-node:anonymous"
+- id: "ory:kratos-selfservice-ui-node:anonymous"
   upstream:
     preserve_host: true
     url: "http://kratos-selfservice-ui-node:4435"
@@ -52,16 +47,13 @@
     methods:
       - GET
   authenticators:
-    -
-      handler: anonymous
+    - handler: anonymous
   authorizer:
     handler: allow
   mutators:
-    -
-      handler: noop
+    - handler: noop
 
--
-  id: "ory:kratos-selfservice-ui-node:protected"
+- id: "ory:kratos-selfservice-ui-node:protected"
   upstream:
     preserve_host: true
     url: "http://kratos-selfservice-ui-node:4435"
@@ -70,8 +62,7 @@
     methods:
       - GET
   authenticators:
-    -
-      handler: cookie_session
+    - handler: cookie_session
   authorizer:
     handler: allow
   mutators:
@@ -80,33 +71,7 @@
     - handler: redirect
       config:
         to: http://127.0.0.1:4455/login
-
--
-  id: "express1"
-  upstream:
-    preserve_host: false
-    url: "http://192.168.1.12:8081"
-    strip_path: /api/1
-  match:
-    url: "http://127.0.0.1:4455/api/1/<**>"
-    methods:
-      - GET
-      - POST
-      - PUT
-      - DELETE
-      - PATCH
-  authenticators:
-    -
-      handler: cookie_session
-  authorizer:
-    handler: allow
-  mutators:
-    - handler: id_token
-  errors:
-    -
-      handler: json
--
-  id: "express2"
+- id: "express2:external"
   upstream:
     preserve_host: false
     url: "http://192.168.1.12:8082"
@@ -115,18 +80,47 @@
     url: "http://127.0.0.1:4455/api/2/<**>"
     methods:
       - GET
-      - POST
-      - PUT
-      - DELETE
-      - PATCH
   authenticators:
-    -
-      handler: cookie_session
+    - handler: cookie_session
   authorizer:
     handler: allow
   mutators:
     - handler: header
   errors:
-    -
-      handler: json
+    - handler: json
 
+- id: "express1"
+  upstream:
+    preserve_host: false
+    url: "http://192.168.1.12:8081"
+    strip_path: /api/1
+  match:
+    url: "http://127.0.0.1:4455/api/1/external/<**>"
+    methods:
+      - GET
+  authenticators:
+    - handler: cookie_session
+  authorizer:
+    handler: allow
+  mutators:
+    - handler: id_token
+  errors:
+    - handler: json
+
+- id: "express1:registration"
+  upstream:
+    preserve_host: false
+    url: "http://192.168.1.12:8081"
+    strip_path: /api/1
+  match:
+    url: "http://127.0.0.1:4455/api/1/registration/process"
+    methods:
+      - POST
+  authenticators:
+    - handler: anonymous
+  authorizer:
+    handler: allow
+  mutators:
+    - handler: noop
+  errors:
+    - handler: json

@@ -4,3 +4,6 @@ express/node_modules
 react/node_modules
 express/package-lock.json
 react/package-lock.json
+
+.idea
+.vscode

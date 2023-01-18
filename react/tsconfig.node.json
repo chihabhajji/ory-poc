@@ -3,7 +3,11 @@
     "composite": true,
     "module": "ESNext",
     "moduleResolution": "Node",
-    "allowSyntheticDefaultImports": true
+    "allowSyntheticDefaultImports": true,
+    "modelPropertyNaming": "original",
+    "withInterfaces": true,
+    "disallowAdditionalPropertiesIfNotPresent": false,
+    "ensureUniqueParams": true
   },
   "include": ["vite.config.ts"]
 }

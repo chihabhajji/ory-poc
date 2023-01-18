@@ -38,25 +38,45 @@
               "type": "string"
             }
           }
-        }
-      },
-      "role": {
-        "title": "Role",
-        "type": "string",
-        "default": "customer",
-        "enum": ["customer", "super-admin", "restaurant-owner", "delivery-boy", "agent"]
-      },
-      "group": {
-        "title": "Group",
-        "type":"array",
-        "items": {
-          "type": "string"
+        },
+        "newsletter": {
+          "title": "Subscribe to our newsletter? (we send emails once a month)",
+          "type": "boolean"
         }
       },
       "required": [
         "email"
       ],
-      "additionalProperties": true
+      "additionalItems": true,
+      "additionalProperties": {
+        "role": {
+          "title": "Role",
+          "type": "string",
+          "enum": [
+            "customer",
+            "super-admin",
+            "restaurant-owner",
+            "delivery-boy",
+            "agent"
+          ],
+          "default": "customer",
+          "readOnly": true
+        },
+        "group": {
+          "title": "Group",
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "rc",
+              "ms",
+              "aigot"
+            ]
+          },
+          "default": "customer",
+          "readOnly": true
+        }
+      }
     }
   }
 }

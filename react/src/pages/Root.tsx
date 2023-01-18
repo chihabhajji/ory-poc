@@ -1,10 +1,9 @@
 import { Suspense, lazy } from 'react';
-import { Navigate, Route, BrowserRouter as Router, Routes, useInRouterContext, useRoutes } from 'react-router-dom';
+import { Navigate, Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 import logo from '../assets/react.svg';
 import { SessionContext, useSession } from '../utils/hooks/sessionHook';
 import { BASE_PATH } from '../utils/ory/oryClient';
 import './App.css';
-import ProtectedRoute from '../components/ProtectedRoute';
 
 const App = lazy(() => import('./App'));
 const Login = lazy(() => import('./Login'));
@@ -14,6 +13,7 @@ const SecureMessage = lazy(() => import('./admin/SecureMessage'))
 function Root(): JSX.Element {
   const { context, isLoading } = useSession();
 
+  if (!context) return <h1>Something went wrong...</h1>
   if (isLoading) return <h1>Loading...</h1>
 
   return (
@@ -25,18 +25,18 @@ function Root(): JSX.Element {
           </div>
           <div>
             {
-              context ? (
+              context.session ? (
                 <a href={(context.logoutUrl + '&return_to=' + window.location.href)}>
                   Logout
                 </a>
               ) : (
                 <div>
                   <a href={(BASE_PATH + '/login?return_to=' + window.location.href)}>
-                    Our UI Login
+                    Ory UI Login
                   </a>
                   &nbsp;|&nbsp;
                   <a href={'/login?return_to=' + window.location.href}>
-                    Ory UI Login
+                    Our UI Login
                   </a>
                 </div>
               )
@@ -58,8 +58,8 @@ function Root(): JSX.Element {
               <Routes>
                 <Route path="/" element={<App />} />
                 <Route path="/login" element={<Login />} />
-                <Route path="/admin/messages" element={context?.session?.identity.traits.role === 'super-admin' ? (<SecureMessage />) : (<Navigate replace to={'/'} />)} />
-                <Route path="/messages" element={context?.session ? (<Messages />) : (<Navigate replace to={'/'} />)} />
+                <Route path="/admin/messages" element={(context.isInRole('super-admin')) ? (<SecureMessage />) : (<Navigate replace to={'/'} />)} />
+                <Route path="/messages" element={context.session ? (<Messages />) : (<Navigate replace to={'/'} />)} />
               </Routes>
             </Suspense>
           </Router>

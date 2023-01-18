@@ -77,6 +77,10 @@ selfservice:
     login:
       ui_url: http://127.0.0.1:4455/login
       lifespan: 10m
+      after:
+        password:
+          hooks:
+            - hook: require_verified_address
 
     registration:
       lifespan: 10m
@@ -84,6 +88,12 @@ selfservice:
       after:
         password:
           hooks:
+            - hook: web_hook
+              config:
+                url: http://192.168.1.12:8081/registration/process
+                method: POST
+                can_interrupt: true
+                body: file:///etc/config/kratos/webhook-body.jsonnet
             - hook: session
 
 log:

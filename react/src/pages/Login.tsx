@@ -5,23 +5,24 @@ import { frontEndOryApi } from '../utils/ory/oryClient';
 import { LoginFlow, UiText } from '@ory/client';
 import { useParams } from 'react-router-dom';
 function Login() {
-    const session = useContext(SessionContext);
+    const context = useContext(SessionContext);
     const [action, setAction] = useState<LoginFlow | undefined>()
     const [errors, setErrors] = useState<UiText[] | undefined>()
     const params = useParams()
-    const [loading, setLoading] = useState(false)
+    const [loading, setLoading] = useState(true)
     useEffect(() => {
-        if (action === undefined) {
-            frontEndOryApi.createBrowserLoginFlow({ returnTo: 'http://127.0.0.1:3000/' }).then(({ data: flow }) => setAction(flow))
+        if (context?.session) {
+            window.location.replace(params.return_to ?? '/');
         }
+        frontEndOryApi.createBrowserLoginFlow({ returnTo: 'http://127.0.0.1:3000/' })
+            .then(({ data: flow }) => setAction(flow))
+            .catch((error) => console.error(error))
+            .finally(() => setLoading(false))
     }, [])
 
-    if (session?.session) {
-        window.location.replace('/')
-    }
-
-    if (!action) return <h1>Loading...</h1>
     if (loading) return <h1>One sec...</h1>
+    if (!action) return <h1>Something went wrong when contacting the Ory client 🤷‍♀️</h1>
+
     function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         setLoading(true)
         e.preventDefault()
@@ -35,10 +36,14 @@ function Login() {
                 csrf_token: data.csrf_token.toString(),
             }
         }).then(({ data: flow }) => {
-            session?.setSession(flow.session)
+            context?.setSession(flow.session)
             window.location.replace(params.return_to ?? '/')
         }).catch((data) => {
-            frontEndOryApi.getLoginFlow({ id: action!.id }).then(({ data: flow }) => setErrors(flow.ui.messages))
+            frontEndOryApi.getLoginFlow({ id: action!.id }).then(({ data: flow }) => {
+                setErrors(flow.ui.messages)
+                                                console.log(flow)
+            })
+
         }).finally(() => setLoading(false))
     }
 

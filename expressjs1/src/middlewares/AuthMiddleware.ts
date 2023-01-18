@@ -26,27 +26,30 @@ export default function AuthMiddleware(
                     );
                     const decoded = verify(token, publicKey) as JwtPayload;
                     // Exchange it for session info expanded with the identity traits
-                    ory.getSession(
-                        {
-                            id: decoded.id,
-                            expand: ['Identity'],
-                        },
-                        { withCredentials: true },
-                    )
-                        .then(({ data }) => {
-                            // We then pass them to the next handler
-                            req.session = data.identity as CustomIdentity;
-                            req.session.internalId = decoded.id;
-                            next();
-                        })
-                        .catch((e: AxiosError) => {
-                            // If we got 401 we return unauthorized, otherwise, it must have been a configuration issue, so we return 500
-                            if (e.status === 401) {
-                                res.status(401).json({ error: 'Unauthorized' });
-                            } else {
-                                res.status(500).json(e.message);
-                            }
-                        });
+                    console.log(decoded);
+                    req.session = decoded;
+                    next();
+                    // ory.getSession(
+                    //     {
+                    //         id: decoded.id,
+                    //         expand: ['Identity'],
+                    //     },
+                    //     { withCredentials: true },
+                    // )
+                    //     .then(({ data }) => {
+                    //         // We then pass them to the next handler
+                    //         req.session = data.identity as CustomIdentity;
+                    //         req.session.internalId = decoded.id;
+                    //         next();
+                    //     })
+                    //     .catch((e: AxiosError) => {
+                    //         // If we got 401 we return unauthorized, otherwise, it must have been a configuration issue, so we return 500
+                    //         if (e.status === 401) {
+                    //             res.status(401).json({ error: 'Unauthorized' });
+                    //         } else {
+                    //             res.status(500).json(e.message);
+                    //         }
+                    //     });
                 })
                 .catch(() => {
                     res.status(500).send('Unable to fetch JWKs');

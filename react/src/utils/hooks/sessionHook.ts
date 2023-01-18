@@ -1,18 +1,22 @@
 import { createContext, useEffect, useState } from 'react';
-import { frontEndOryApi } from '../ory/oryClient';
+import { BASE_PATH, frontEndOryApi } from '../ory/oryClient';
 import { Session } from '@ory/client';
 
 
 export class SessionDetails {
-  session: Session | undefined
-  logoutUrl: string | undefined
+  session?: Session
+  logoutUrl?: string
   getUserName(): string {
     return this.session?.identity.traits.email || this.session?.identity.traits.username
   }
   setSession(session: Session) { 
     this.session = session
   }
-  public constructor(session: Session, logoutUrl: string) {
+  isInRole(role: string): boolean {
+    return this.session?.identity.traits.role === role
+  }
+
+  public constructor(session?: Session, logoutUrl?: string) {
     this.session = session;
     this.logoutUrl = logoutUrl;
   }
@@ -30,10 +34,11 @@ export function useSession(): { context: SessionDetails | undefined, isLoading: 
       .then(({ data: session }) => {
         frontEndOryApi.createBrowserLogoutFlow().then(({ data: logoutflow }) => {
           setSession(new SessionDetails(session, logoutflow.logout_url))
-          console.log(session.identity.traits.role)
+          console.log(session)
         })
       })
       .catch((e) => {
+        setSession(new SessionDetails(undefined, undefined))
         // window.location.replace(BASE_PATH + '/login?return_to=' + window.location.href)
       })
       .finally(() => setIsLoading(false))

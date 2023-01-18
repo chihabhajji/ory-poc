@@ -1,0 +1,76 @@
+{
+  "children": [
+    {
+      "children": [
+        {
+          "tuple": {
+            "namespace": "",
+            "object": "",
+            "relation": "",
+            "subject_id": "maureen"
+          },
+          "type": "leaf"
+        }
+      ],
+      "tuple": {
+        "namespace": "",
+        "object": "",
+        "relation": "",
+        "subject_set": {
+          "namespace": "files",
+          "object": "/photos/beach.jpg",
+          "relation": "owner"
+        }
+      },
+      "type": "union"
+    },
+    {
+      "children": [
+        {
+          "tuple": {
+            "namespace": "",
+            "object": "",
+            "relation": "",
+            "subject_id": "laura"
+          },
+          "type": "leaf"
+        },
+        {
+          "tuple": {
+            "namespace": "",
+            "object": "",
+            "relation": "",
+            "subject_set": {
+              "namespace": "directories",
+              "object": "/photos",
+              "relation": "owner"
+            }
+          },
+          "type": "leaf"
+        }
+      ],
+      "tuple": {
+        "namespace": "",
+        "object": "",
+        "relation": "",
+        "subject_set": {
+          "namespace": "directories",
+          "object": "/photos",
+          "relation": "access"
+        }
+      },
+      "type": "union"
+    }
+  ],
+  "tuple": {
+    "namespace": "",
+    "object": "",
+    "relation": "",
+    "subject_set": {
+      "namespace": "files",
+      "object": "/photos/beach.jpg",
+      "relation": "access"
+    }
+  },
+  "type": "union"
+}
