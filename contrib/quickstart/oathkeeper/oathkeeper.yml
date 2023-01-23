@@ -107,8 +107,14 @@ mutators:
       issuer_url: http://127.0.0.1:4433/
       jwks_url: file:///etc/config/oathkeeper/Id_token.jwks.json
       # TODO
-      claims:
+      claims: |
         {
           "id": "{{ print .Extra.id }}",
-          "name": "{{ print .Extra.identity.name }}",
+          "username": "{{ print .Extra.identity.traits.email }}",
+          "name": "{{ print .Extra.identity.traits.name.first }} {{ print .Extra.identity.traits.name.last }}",
+          "restaurantId": "{{ print .Extra.identity.traits.restaurantId }}",
+          "role": "{{ print .Extra.identity.traits.role }}",
+          "group": "{{ print .Extra.identity.traits.group }}",
+          "required_action": "my:action:{{ printIndex .MatchContext.RegexpCaptureGroups 0 }}",
+          "required_resource": "my:resource:{{ printIndex .MatchContext.RegexpCaptureGroups 1 }}:foo:{{ printIndex .MatchContext.RegexpCaptureGroups 0 }}"
         }

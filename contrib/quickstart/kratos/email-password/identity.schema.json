@@ -41,7 +41,9 @@
         },
         "newsletter": {
           "title": "Subscribe to our newsletter? (we send emails once a month)",
-          "type": "boolean"
+          "description": "We will send you an email once a month. You can unsubscribe at any time.",
+          "type": "boolean",
+          "default": false
         }
       },
       "required": [

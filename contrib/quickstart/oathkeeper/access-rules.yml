@@ -71,6 +71,7 @@
     - handler: redirect
       config:
         to: http://127.0.0.1:4455/login
+
 - id: "express2:external"
   upstream:
     preserve_host: false

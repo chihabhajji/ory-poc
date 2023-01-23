@@ -9,7 +9,7 @@ export class SessionDetails {
   getUserName(): string {
     return this.session?.identity.traits.email || this.session?.identity.traits.username
   }
-  setSession(session: Session) { 
+  setSession(session: Session) {
     this.session = session
   }
   isInRole(role: string): boolean {
